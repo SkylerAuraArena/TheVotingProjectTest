@@ -6,10 +6,11 @@ contract("Voting", accounts => {
     const owner = accounts[0];
     const secondAddress = accounts[1];
     const thirdAddress = accounts[2];
+    const fourthAddress = accounts[3];
 
     let VotingTestInstance;
 
-    describe.skip("Workflow status changes tests", function () {
+    describe("Workflow status changes tests", function () {
 
         beforeEach(async function () {
             VotingTestInstance = await Voting.new({ from: owner });
@@ -82,7 +83,7 @@ contract("Voting", accounts => {
         });   
     });
 
-    describe.skip("Add voters tests", function () {
+    describe("Add voters tests", function () {
 
         beforeEach(async function () {
             VotingTestInstance = await Voting.new({ from: owner });
@@ -132,7 +133,16 @@ contract("Voting", accounts => {
         });
     });
 
-    describe.skip("Add proposals tests with workflow set on ProposalsRegistrationStarted", function () {
+    describe("Add proposals tests with workflow not set on ProposalsRegistrationStarted", function () {
+        it("...should revert when trying to register a new proposal whereas proposals registration is not allowed", async () => {
+            VotingTestInstance = await Voting.new({ from: owner });
+            await VotingTestInstance.addVoter(owner, { from: owner });
+            await VotingTestInstance.addVoter(secondAddress, { from: owner });
+            await expectRevert(VotingTestInstance.addProposal("First", { from: owner }), "Proposals are not allowed yet");
+        });
+    });
+
+    describe("Add proposals tests with workflow set on ProposalsRegistrationStarted", function () {
 
         beforeEach(async function () {
             VotingTestInstance = await Voting.new({ from: owner });
@@ -142,7 +152,7 @@ contract("Voting", accounts => {
         });
 
         it("...should revert when a non-registered address tries to get a proposal's informations", async () => {
-            await expectRevert(VotingTestInstance.getOneProposal(new BN(0), { from: thirdAddress }), "You're not a voter");
+            await expectRevert(VotingTestInstance.getOneProposal(new BN(0), { from: fourthAddress }), "You're not a voter");
         });
 
         it("...should add a new proposal as the second voter and get the ProposalRegistered event", async () => {
@@ -167,12 +177,91 @@ contract("Voting", accounts => {
         });
     });
 
-    describe.skip("Add proposals tests with workflow not set on ProposalsRegistrationStarted", function () {
-        it("...should revert when trying to register a new proposal whereas proposals registration is not allowed", async () => {
+    describe("Vote tests with workflow not set on VotingSessionStarted", function () {
+
+        beforeEach(async function () {
+            VotingTestInstance = await Voting.new({ from: owner });
+        });
+
+        it("...should revert when a non-registered address tries to vote", async () => {
+            await expectRevert(VotingTestInstance.setVote(0), "You're not a voter");
+        });
+
+        it("...should revert when trying to vote whereas voting session is not on going", async () => {
+            await VotingTestInstance.addVoter(owner, { from: owner });
+            await expectRevert(VotingTestInstance.setVote(0), "Voting session havent started yet");
+        });
+    });
+
+    describe("Vote tests with workflow set on VotingSessionStarted", function () {
+
+        beforeEach(async function () {
             VotingTestInstance = await Voting.new({ from: owner });
             await VotingTestInstance.addVoter(owner, { from: owner });
             await VotingTestInstance.addVoter(secondAddress, { from: owner });
-            await expectRevert(VotingTestInstance.addProposal("First", { from: owner }), "Proposals are not allowed yet");
+            await VotingTestInstance.startProposalsRegistering();
+            await VotingTestInstance.addProposal("Second", { from: secondAddress });
+            await VotingTestInstance.endProposalsRegistering();
+            await VotingTestInstance.startVotingSession();
+        });
+
+        it("...should vote and get the Voted event", async () => {
+            const voteRegistered = await VotingTestInstance.setVote(0, { from: owner });
+            expectEvent(voteRegistered,"Voted" ,{voter: owner, proposalId: new BN(0)});
+        });
+
+        it("...should revert when a voter tries to vote whereas he has prviously voted", async () => {
+            await VotingTestInstance.setVote(0, { from: owner });
+            await expectRevert(VotingTestInstance.setVote(0, { from: owner }), "You have already voted");
+        });
+
+        it("...should revert when the vote id is out of the proposals' array bounds", async () => {
+            await expectRevert(VotingTestInstance.setVote(3, { from: owner }), "Proposal not found");
+        });
+    });
+
+    describe("Talling Votes tests with workflow not set on VotesTallied", function () {
+
+        beforeEach(async function () {
+            VotingTestInstance = await Voting.new({ from: owner });
+        });
+
+        it("...should revert when trying to tally votes whereas the voting session has not ended", async () => {
+            await expectRevert(VotingTestInstance.tallyVotes({ from: owner }), "Current status is not voting session ended");
+        });
+
+        it("...should return the winning proposal id which is to be 0 on initialization", async () => {
+            const winningProposalId = await VotingTestInstance.winningProposalID.call();
+            expect(new BN(winningProposalId)).to.be.bignumber.equal(new BN(0));
+        });
+    });
+
+    describe("Talling Votes tests with workflow set on VotesTallied", function () {
+
+        beforeEach(async function () {
+            VotingTestInstance = await Voting.new({ from: owner });
+            await VotingTestInstance.addVoter(owner, { from: owner });
+            await VotingTestInstance.addVoter(secondAddress, { from: owner });
+            await VotingTestInstance.addVoter(thirdAddress, { from: owner });
+            await VotingTestInstance.startProposalsRegistering();
+            await VotingTestInstance.addProposal("Second", { from: secondAddress });
+            await VotingTestInstance.addProposal("Third", { from: thirdAddress });
+            await VotingTestInstance.endProposalsRegistering();
+            await VotingTestInstance.startVotingSession();
+            await VotingTestInstance.setVote(2, { from: owner });
+            await VotingTestInstance.setVote(2, { from: secondAddress });
+            await VotingTestInstance.setVote(2, { from: thirdAddress });
+            await VotingTestInstance.endVotingSession();
+            await VotingTestInstance.tallyVotes();
+        });
+
+        it("...should revert when an address which is not the owner tries to tally the votes", async () => {
+            await expectRevert(VotingTestInstance.tallyVotes({ from: secondAddress }), "caller is not the owner");
+        });
+
+        it("...should return the winning proposal id which is to be 2 when votes are tallied", async () => {
+            const winningProposalId = await VotingTestInstance.winningProposalID.call();
+            expect(new BN(winningProposalId)).to.be.bignumber.equal(new BN(2));
         });
     });
 });
