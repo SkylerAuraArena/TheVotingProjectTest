@@ -8,6 +8,7 @@ Here are the different types of tests ran as expecting tests : values, reverts a
 These are made thanks to the test-helpers and chai libraries.
 
 The 34 tests made are gathered according the following groups :
+
   1-Workflow status modification tests : 11 tests.
   
   2-Add and Get voters tests : 8 tests.
