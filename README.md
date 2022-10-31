@@ -9,13 +9,21 @@ These are made thanks to the test-helpers and chai libraries.
 
 The 34 tests made are gathered according the following groups :
   1-Workflow status modification tests : 11 tests.
+  
   2-Add and Get voters tests : 8 tests.
+  
   3-Add proposals tests with workflow not set on ProposalsRegistrationStarted : 1 test.
+  
   4-Add proposals tests with workflow set on ProposalsRegistrationStarted : 5 tests.
+  
   5-Vote tests with workflow not set on VotingSessionStarted : 2 tests.
+  
   6-Vote tests with workflow set on VotingSessionStarted : 3 tests.
+  
   7-Talling Votes tests with workflow not set on VotesTallied : 2 tests.
+  
   8-Talling Votes tests with workflow set on VotesTallied : 2 tests.
+  
   
  I chose to use only the beforeEach hook since it was the only one I needed. The is no use of only or skip since these are developpment tools and this contract is made for production.
  
