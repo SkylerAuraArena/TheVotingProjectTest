@@ -1,11 +1,21 @@
 # TheVotingProject, test version
 This is the second Solidity project. Made for Alyra. An upgrade version of the first one in which tests were added using Truffle.
 
+
+--------------------------------------------------------------------------------------------------------------------------------
+ Description :
+ 
+
 To test this smart contract, I used Truffle, eth-gas-reporter, @openzepplin's contracts and test-helpers. I also used Hardhat because the solidity-coverage library donesn't function on Truffle anymore.
 
 Here are the different types of tests ran as expecting tests : values, reverts and events.
 
 These are made thanks to the test-helpers and chai libraries.
+
+
+--------------------------------------------------------------------------------------------------------------------------------
+ Test coverage :
+ 
 
 The 34 tests made are gathered according the following groups (functions in the contract) :
 
@@ -27,10 +37,21 @@ The 34 tests made are gathered according the following groups (functions in the 
   
   
  I chose to use only the beforeEach hook since it was the only one I needed. The is no use of only or skip since these are developpment tools and this contract is made for production.
- 
+
+
+--------------------------------------------------------------------------------------------------------------------------------
+ Use :
+
+
 To set and check this contract testing :
+
 1.npm install
+
 2.truffle test
+
+--------------------------------------------------------------------------------------------------------------------------------
+ Optimization :
+ 
  
  Here is the gas consumption report (made with eth-gas-reporter) :
 <img width="820" alt="image" src="https://user-images.githubusercontent.com/42751827/199092314-e2109e61-5077-4d91-b98b-00f763b8154c.png">
