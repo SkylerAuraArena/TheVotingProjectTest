@@ -1,7 +1,6 @@
-const SimpleStorage = artifacts.require("SimpleStorage");
+const Voting = artifacts.require("Voting");
 
 module.exports = async (deployer) => {
-  await deployer.deploy(SimpleStorage,7);
-  var instance = await SimpleStorage.deployed();
-  console.log(await instance.get());
+  await deployer.deploy(Voting);
+  const votingInstance = await Voting.deployed();
 };
