@@ -3,7 +3,7 @@ This is the second Solidity project. Made for Alyra. An upgrade version of the f
 
 
 --------------------------------------------------------------------------------------------------------------------------------
- Description :
+*** Description :
  
 
 To test this smart contract, I used Truffle, eth-gas-reporter, @openzepplin's contracts and test-helpers. I also used Hardhat because the solidity-coverage library donesn't function on Truffle anymore.
@@ -14,7 +14,7 @@ These are made thanks to the test-helpers and chai libraries.
 
 
 --------------------------------------------------------------------------------------------------------------------------------
- Test coverage :
+*** Test coverage :
  
 
 The 34 tests made are gathered according the following groups (functions in the contract) :
@@ -40,7 +40,7 @@ The 34 tests made are gathered according the following groups (functions in the 
 
 
 --------------------------------------------------------------------------------------------------------------------------------
- Use :
+*** Use :
 
 
 To set and check this contract testing :
@@ -50,7 +50,7 @@ To set and check this contract testing :
 2.truffle test
 
 --------------------------------------------------------------------------------------------------------------------------------
- Optimization :
+*** Optimization :
  
  
  Here is the gas consumption report (made with eth-gas-reporter) :
